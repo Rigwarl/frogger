@@ -36,9 +36,9 @@ queue.loadManifest([
 function init() {
   createLevel();
   createBugs();
-  createKey();
   createHero();
   resetLevel();
+
   bindKeys();
   createTicker();
 }
@@ -61,6 +61,7 @@ function createLevel() {
       createDoor();
     }
   }
+  createKey();
 }
 
 function createTile(type, i, j) {
@@ -79,24 +80,6 @@ function createDoor() {
 
 function resetDoor() {
   door.x = Math.floor(Math.random() * 6 + 1) * tileWidth;
-}
-
-function createBugs() {
-  for (let i = 0; i < 5; i++) {
-    const bug = new createjs.Bitmap(queue.getResult('bug'));
-    setBug(bug);
-
-    bugs.push(bug);
-    stage.addChild(bug);
-  }
-}
-
-function setBug(bug) {
-  bug.set({
-    x: - (Math.random() + 1) * tileWidth,
-    y: Math.floor(Math.random() * 4) * tileHeight,
-    speed: (Math.random() + 1) * (Math.random() + 1),
-  });
 }
 
 function createKey() {
@@ -120,6 +103,35 @@ function collectKey() {
   keyCollected = true;
 
   hudKey.appendChild(queue.getResult('key'));
+}
+
+function createBugs() {
+  for (let i = 0; i < 5; i++) {
+    createBug();
+  }
+}
+
+function createBug() {
+  const bug = new createjs.Bitmap(queue.getResult('bug'));
+  setBug(bug);
+
+  bugs.push(bug);
+  stage.addChild(bug);
+}
+
+function setBug(bug) {
+  bug.set({
+    x: - (Math.random() + 1) * tileWidth,
+    y: Math.floor(Math.random() * 4) * tileHeight,
+    speed: (Math.random() + 1) * (Math.random() + 1),
+  });
+}
+
+function resetBugs() {
+  bugs.splice(5).forEach(function(bug) {
+    stage.removeChild(bug);
+  });
+  bugs.forEach(setBug);
 }
 
 function createHero() {
@@ -216,6 +228,10 @@ function nextLevel() {
   createjs.Sound.play('doorSound');
   hudText.innerText = ++level;
   resetLevel();
+
+  if (level % 3 === 0) {
+    createBug();
+  }
 }
 
 function gameOver() {
@@ -223,6 +239,7 @@ function gameOver() {
   createjs.Sound.play('screamSound');
   hudText.innerText = level = 1;
   resetLevel();
+  resetBugs();
 }
 
 function createTicker() {
@@ -246,6 +263,7 @@ function moveBugs(delta) {
 function checkHit() {
   for (const bug of bugs) {
     if (checkCollision(bug)) {
+      createjs.Ticker.paused = true;
       gameOver();
     }
   }

@@ -4,9 +4,23 @@
   margin: 0 auto;
 }
 
-.game-level{
+.game-hud{
+  overflow: hidden;
   font-family: Arial;
-  margin: 10px 0 5px;
+}
+
+.game-level{
+  margin: 35px 0 15px;
   font-size: 24px;
   font-weight: bold;
+  float: left;
+}
+
+.game-key{
+  float: right;
+}
+
+.game-key img{
+  display: block;
+  width: 45px;
 }

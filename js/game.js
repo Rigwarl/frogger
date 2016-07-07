@@ -2,12 +2,20 @@
 
 const stage = new createjs.Stage('game-canvas');
 const queue = new createjs.LoadQueue();
+
 const tileWidth = 100;
 const tileHeight = 83;
+
+const hudText = document.querySelector('#level');
+const hudKey = document.querySelector('#key');
+
 const bugs = [];
-const levelText = document.querySelector('#level');
-let level = 1;
 let hero;
+let key;
+let door;
+
+let level = 1;
+let keyCollected = false;
 
 queue.addEventListener('complete', init);
 queue.installPlugin(createjs.Sound);
@@ -17,12 +25,16 @@ queue.loadManifest([
   { id: 'water', src: 'img/water-block.png' },
   { id: 'stone', src: 'img/stone-block.png' },
   { id: 'bug', src: 'img/enemy-bug.png' },
+  { id: 'key', src: 'img/key.png' },
+  { id: 'door', src: 'img/door.png' },
   { id: 'scream', src: 'audio/man-scream.mp3' },
   { id: 'splash', src: 'audio/water-splash.mp3' },
+  { id: 'door-open', src: 'audio/door-open.mp3' },
 ]);
 
 function init() {
   createLevel();
+  createKey();
   createHero();
   createBugs();
   createTicker();
@@ -30,22 +42,45 @@ function init() {
 }
 
 function createLevel() {
-  for (let i = 0; i < 7; i++) {
-    for (let j = 0; j < 6; j++) {
-      let type = 'stone';
-      if (j === 0) {
-        type = 'water';
-      } else if (j === 5) {
-        type = 'grass';
-      }
+  for (let i = 0; i < 6; i++) {
+    let type = 'stone';
 
-      const tile = new createjs.Bitmap(queue.getResult(type)).set({
-        x: i * tileWidth,
-        y: j * tileHeight - 50,
-      });
-      stage.addChild(tile);
+    if (i === 0) {
+      type = 'water';
+    } else if (i === 5) {
+      type = 'grass';
+    }
+
+    for (let j = 0; j < 7; j++) {
+      createTile(type, i, j);
+    }
+
+    if (i === 0) {
+      createDoor();
     }
   }
+}
+
+function createTile(type, i, j) {
+  const tile = new createjs.Bitmap(queue.getResult(type)).set({
+    x: j * tileWidth,
+    y: i * tileHeight - 50,
+  });
+  stage.addChild(tile);
+}
+
+function createDoor() {
+  door = new createjs.Bitmap(queue.getResult('door')).set({
+    x: Math.floor(Math.random() * 7) * tileWidth,
+    y: -65,
+  });
+  stage.addChild(door);
+}
+
+function createKey() {
+  key = new createjs.Bitmap(queue.getResult('key'));
+  resetKey();
+  stage.addChild(key);
 }
 
 function createHero() {
@@ -73,7 +108,7 @@ function setBug(bug) {
   bug.set({
     x: - (Math.random() + 1) * tileWidth,
     y: Math.floor(Math.random() * 4) * tileHeight,
-    speed: (Math.random() + 1) * (Math.random() + 1) * (2 + level * 0.05),
+    speed: (Math.random() + 1) * (Math.random() + 1) * 1.5,
   });
 }
 
@@ -88,12 +123,25 @@ function moveBugs() {
 
 function checkHit() {
   for (const bug of bugs) {
-    if (bug.y === hero.y && 
-        bug.x + tileWidth * 0.75 > hero.x && 
-        hero.x + tileWidth * 0.75 > bug.x) {
+    if (checkCollision(bug)) {
       gameOver();
     }
   }
+}
+
+function checkCollision(obj1, obj2) {
+  obj2 = obj2 || hero;
+
+  return obj1.y === obj2.y && 
+         obj1.x + tileWidth * 0.75 > obj2.x && 
+         obj2.x + tileWidth * 0.75 > obj1.x;
+}
+
+function collectKey() {
+  key.visible = false;
+  keyCollected = true;
+
+  hudKey.appendChild(queue.getResult('key'));
 }
 
 function bindKeys() {
@@ -128,26 +176,67 @@ function moveHero(action) {
       break;
   }
 
-  if (newY < 0) {
-    gameWin();
-  } else {
-    hero.x = newX >= 0 && newX < stage.canvas.width ? newX : hero.x;
-    hero.y = newY < stage.canvas.height - 100 ? newY : hero.y;
+  if (checkMove(newX, newY)) {
+    hero.x = newX;
+    hero.y = newY;
   }
 }
 
-function gameWin() {
-  console.log('win');
+function checkMove(newX, newY) {
+  if (key.visible && checkCollision(key, { x: newX, y: newY })) {
+    collectKey();
+  }
+
+  if (newY < 0) {
+    if (hero.x === door.x) {
+      if (keyCollected) {
+        nextLevel();
+      }
+    } else {
+      dive();
+    }
+
+    return false;
+  }
+
+  return newX >= 0 && 
+         newX < stage.canvas.width && 
+         newY < stage.canvas.height - 100;
+}
+
+function dive() {
   createjs.Sound.play('splash');
-  levelText.innerText = ++level;
   resetHero();
 }
 
+function nextLevel() {
+  console.log('nextLevel');
+  createjs.Sound.play('door-open');
+  hudText.innerText = ++level;
+  resetLevel();
+}
+
 function gameOver() {
-  console.log('lost');
+  console.log('lost on lvl ' + level);
   createjs.Sound.play('scream');
-  levelText.innerText = level = 1;
+  hudText.innerText = level = 1;
+  resetLevel();
+}
+
+function resetLevel() {
   resetHero();
+  resetKey();
+  door.x = Math.floor(Math.random() * 7) * tileWidth;
+}
+
+function resetKey() {
+  hudKey.innerHTML = '';
+  keyCollected = false;
+  key.visible = true;
+  key.set({
+    x: Math.floor(Math.random() * 7) * tileWidth,
+    y: Math.floor(Math.random() * 5) * tileHeight,
+  });
 }
 
 function createTicker() {
@@ -159,17 +248,3 @@ function createTicker() {
     stage.update();
   });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

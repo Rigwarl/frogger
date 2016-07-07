@@ -38,8 +38,9 @@ function init() {
   createBugs();
   createKey();
   createHero();
-  createTicker();
+  resetLevel();
   bindKeys();
+  createTicker();
 }
 
 function createLevel() {
@@ -71,28 +72,13 @@ function createTile(type, i, j) {
 }
 
 function createDoor() {
-  door = new createjs.Bitmap(queue.getResult('door')).set({
-    x: Math.floor(Math.random() * 7) * tileWidth,
-    y: -65,
-  });
+  door = new createjs.Bitmap(queue.getResult('door'));
+  door.y = -65;
   stage.addChild(door);
 }
 
-function createKey() {
-  key = new createjs.Bitmap(queue.getResult('key'));
-  resetKey();
-  stage.addChild(key);
-}
-
-function createHero() {
-  hero = new createjs.Bitmap(queue.getResult('hero'));
-  resetHero();
-  stage.addChild(hero);
-}
-
-function resetHero() {
-  hero.x = tileWidth * 3;
-  hero.y = tileHeight * 4;
+function resetDoor() {
+  door.x = Math.floor(Math.random() * 7) * tileWidth;
 }
 
 function createBugs() {
@@ -113,29 +99,19 @@ function setBug(bug) {
   });
 }
 
-function moveBugs(delta) {
-  for (const bug of bugs) {
-    bug.x += bug.speed * delta / 8;
-    if (bug.x > stage.canvas.width) {
-      setBug(bug);
-    }
-  }
+function createKey() {
+  key = new createjs.Bitmap(queue.getResult('key'));
+  stage.addChild(key);
 }
 
-function checkHit() {
-  for (const bug of bugs) {
-    if (checkCollision(bug)) {
-      gameOver();
-    }
-  }
-}
-
-function checkCollision(obj1, obj2) {
-  obj2 = obj2 || hero;
-
-  return obj1.y === obj2.y && 
-         obj1.x + tileWidth * 0.75 > obj2.x && 
-         obj2.x + tileWidth * 0.75 > obj1.x;
+function resetKey() {
+  hudKey.innerHTML = '';
+  keyCollected = false;
+  key.visible = true;
+  key.set({
+    x: Math.floor(Math.random() * 7) * tileWidth,
+    y: Math.floor(Math.random() * 5) * tileHeight,
+  });
 }
 
 function collectKey() {
@@ -144,6 +120,22 @@ function collectKey() {
   keyCollected = true;
 
   hudKey.appendChild(queue.getResult('key'));
+}
+
+function createHero() {
+  hero = new createjs.Bitmap(queue.getResult('hero'));
+  stage.addChild(hero);
+}
+
+function resetHero() {
+  hero.x = tileWidth * 3;
+  hero.y = tileHeight * 4;
+}
+
+function resetLevel() {
+  resetHero();
+  resetKey();
+  resetDoor();
 }
 
 function bindKeys() {
@@ -206,6 +198,14 @@ function checkMove(newX, newY) {
          newY < stage.canvas.height - 100;
 }
 
+function checkCollision(obj1, obj2) {
+  obj2 = obj2 || hero;
+
+  return obj1.y === obj2.y && 
+         obj1.x + tileWidth * 0.75 > obj2.x && 
+         obj2.x + tileWidth * 0.75 > obj1.x;
+}
+
 function dive() {
   createjs.Sound.play('splashSound');
   resetHero();
@@ -225,22 +225,6 @@ function gameOver() {
   resetLevel();
 }
 
-function resetLevel() {
-  resetHero();
-  resetKey();
-  door.x = Math.floor(Math.random() * 7) * tileWidth;
-}
-
-function resetKey() {
-  hudKey.innerHTML = '';
-  keyCollected = false;
-  key.visible = true;
-  key.set({
-    x: Math.floor(Math.random() * 7) * tileWidth,
-    y: Math.floor(Math.random() * 5) * tileHeight,
-  });
-}
-
 function createTicker() {
   createjs.Ticker.timingMode = createjs.Ticker.RAF;
   createjs.Ticker.addEventListener('tick', function(e) {
@@ -248,4 +232,21 @@ function createTicker() {
     checkHit();
     stage.update();
   });
+}
+
+function moveBugs(delta) {
+  for (const bug of bugs) {
+    bug.x += bug.speed * delta / 9;
+    if (bug.x > stage.canvas.width) {
+      setBug(bug);
+    }
+  }
+}
+
+function checkHit() {
+  for (const bug of bugs) {
+    if (checkCollision(bug)) {
+      gameOver();
+    }
+  }
 }

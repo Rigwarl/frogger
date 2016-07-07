@@ -245,6 +245,10 @@ function gameOver() {
 function createTicker() {
   createjs.Ticker.timingMode = createjs.Ticker.RAF;
   createjs.Ticker.addEventListener('tick', function(e) {
+    if (e.delta > 1000) {
+      return;
+    }
+
     moveBugs(e.delta);
     checkHit();
     stage.update();

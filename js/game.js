@@ -93,7 +93,7 @@ function resetKey() {
   key.visible = true;
   key.set({
     x: Math.floor(Math.random() * 6 + 1) * tileWidth,
-    y: Math.floor(Math.random() * 5) * tileHeight,
+    y: Math.floor(Math.random() * 4) * tileHeight,
   });
 }
 

@@ -27,9 +27,10 @@ queue.loadManifest([
   { id: 'bug', src: 'img/enemy-bug.png' },
   { id: 'key', src: 'img/key.png' },
   { id: 'door', src: 'img/door.png' },
-  { id: 'scream', src: 'audio/man-scream.mp3' },
-  { id: 'splash', src: 'audio/water-splash.mp3' },
-  { id: 'door-open', src: 'audio/door-open.mp3' },
+  { id: 'screamSound', src: 'audio/man-scream.mp3' },
+  { id: 'keySound', src: 'audio/key-pickup.mp3' },
+  { id: 'splashSound', src: 'audio/water-splash.mp3' },
+  { id: 'doorSound', src: 'audio/door-open.mp3' },
 ]);
 
 function init() {
@@ -108,13 +109,13 @@ function setBug(bug) {
   bug.set({
     x: - (Math.random() + 1) * tileWidth,
     y: Math.floor(Math.random() * 4) * tileHeight,
-    speed: (Math.random() + 1) * (Math.random() + 1) * 1.5,
+    speed: (Math.random() + 1) * (Math.random() + 1),
   });
 }
 
-function moveBugs() {
+function moveBugs(delta) {
   for (const bug of bugs) {
-    bug.x += bug.speed;
+    bug.x += bug.speed * delta / 8;
     if (bug.x > stage.canvas.width) {
       setBug(bug);
     }
@@ -138,6 +139,7 @@ function checkCollision(obj1, obj2) {
 }
 
 function collectKey() {
+  createjs.Sound.play('keySound');
   key.visible = false;
   keyCollected = true;
 
@@ -205,20 +207,20 @@ function checkMove(newX, newY) {
 }
 
 function dive() {
-  createjs.Sound.play('splash');
+  createjs.Sound.play('splashSound');
   resetHero();
 }
 
 function nextLevel() {
   console.log('nextLevel');
-  createjs.Sound.play('door-open');
+  createjs.Sound.play('doorSound');
   hudText.innerText = ++level;
   resetLevel();
 }
 
 function gameOver() {
   console.log('lost on lvl ' + level);
-  createjs.Sound.play('scream');
+  createjs.Sound.play('screamSound');
   hudText.innerText = level = 1;
   resetLevel();
 }
@@ -241,9 +243,8 @@ function resetKey() {
 
 function createTicker() {
   createjs.Ticker.timingMode = createjs.Ticker.RAF;
-  createjs.Ticker.framerate = 60;
-  createjs.Ticker.addEventListener('tick', function() {
-    moveBugs();
+  createjs.Ticker.addEventListener('tick', function(e) {
+    moveBugs(e.delta);
     checkHit();
     stage.update();
   });

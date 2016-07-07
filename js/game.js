@@ -78,7 +78,7 @@ function createDoor() {
 }
 
 function resetDoor() {
-  door.x = Math.floor(Math.random() * 7) * tileWidth;
+  door.x = Math.floor(Math.random() * 6 + 1) * tileWidth;
 }
 
 function createBugs() {
@@ -109,7 +109,7 @@ function resetKey() {
   keyCollected = false;
   key.visible = true;
   key.set({
-    x: Math.floor(Math.random() * 7) * tileWidth,
+    x: Math.floor(Math.random() * 6 + 1) * tileWidth,
     y: Math.floor(Math.random() * 5) * tileHeight,
   });
 }
@@ -236,7 +236,7 @@ function createTicker() {
 
 function moveBugs(delta) {
   for (const bug of bugs) {
-    bug.x += bug.speed * delta / 9;
+    bug.x += bug.speed * delta / 10;
     if (bug.x > stage.canvas.width) {
       setBug(bug);
     }

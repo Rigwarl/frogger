@@ -34,9 +34,9 @@ queue.loadManifest([
 
 function init() {
   createLevel();
+  createBugs();
   createKey();
   createHero();
-  createBugs();
   createTicker();
   bindKeys();
 }

@@ -1,21 +1,21 @@
 'use strict';
 
-const stage = new createjs.Stage('game-canvas');
-const queue = new createjs.LoadQueue();
+var stage = new createjs.Stage('game-canvas');
+var queue = new createjs.LoadQueue();
 
-const tileWidth = 100;
-const tileHeight = 83;
+var tileWidth = 100;
+var tileHeight = 83;
 
-const hudText = document.querySelector('#level');
-const hudKey = document.querySelector('#key');
+var hudText = document.querySelector('#level');
+var hudKey = document.querySelector('#key');
 
-const bugs = [];
-let hero;
-let key;
-let door;
+var bugs = [];
+var hero;
+var key;
+var door;
 
-let level = 1;
-let keyCollected = false;
+var level = 1;
+var keyCollected = false;
 
 queue.addEventListener('complete', init);
 queue.installPlugin(createjs.Sound);
@@ -44,8 +44,8 @@ function init() {
 }
 
 function createLevel() {
-  for (let i = 0; i < 6; i++) {
-    let type = 'stone';
+  for (var i = 0; i < 6; i++) {
+    var type = 'stone';
 
     if (i === 0) {
       type = 'water';
@@ -53,7 +53,7 @@ function createLevel() {
       type = 'grass';
     }
 
-    for (let j = 0; j < 7; j++) {
+    for (var j = 0; j < 7; j++) {
       createTile(type, i, j);
     }
 
@@ -65,7 +65,7 @@ function createLevel() {
 }
 
 function createTile(type, i, j) {
-  const tile = new createjs.Bitmap(queue.getResult(type)).set({
+  var tile = new createjs.Bitmap(queue.getResult(type)).set({
     x: j * tileWidth,
     y: i * tileHeight - 50,
   });
@@ -106,13 +106,13 @@ function collectKey() {
 }
 
 function createBugs() {
-  for (let i = 0; i < 5; i++) {
+  for (var i = 0; i < 5; i++) {
     createBug();
   }
 }
 
 function createBug() {
-  const bug = new createjs.Bitmap(queue.getResult('bug'));
+  var bug = new createjs.Bitmap(queue.getResult('bug'));
   setBug(bug);
 
   bugs.push(bug);
@@ -151,21 +151,21 @@ function resetLevel() {
 }
 
 function bindKeys() {
-  window.addEventListener('keydown', function(e) {
-    const actions = {
-      37: 'left',
-      38: 'top',
-      39: 'right',
-      40: 'bottom',
-    };
+  var actions = {
+    37: 'left',
+    38: 'top',
+    39: 'right',
+    40: 'bottom',
+  };
 
+  window.addEventListener('keydown', function(e) {
     moveHero(actions[e.keyCode]);
   });
 }
 
 function moveHero(action) {
-  let newX = hero.x;
-  let newY = hero.y;
+  var newX = hero.x;
+  var newY = hero.y;
 
   switch (action) {
     case 'left':
@@ -224,10 +224,10 @@ function dive() {
 }
 
 function nextLevel() {
-  console.log('nextLevel');
   createjs.Sound.play('doorSound');
   hudText.innerText = ++level;
   resetLevel();
+  console.log('level ' + level);
 
   if (level % 3 === 0) {
     createBug();
@@ -256,7 +256,7 @@ function createTicker() {
 }
 
 function moveBugs(delta) {
-  for (let bug of bugs) {
+  for (var bug of bugs) {
     bug.x += bug.speed * delta / 10;
     if (bug.x > stage.canvas.width) {
       setBug(bug);
@@ -265,7 +265,7 @@ function moveBugs(delta) {
 }
 
 function checkHit() {
-  for (let bug of bugs) {
+  for (var bug of bugs) {
     if (checkCollision(bug)) {
       createjs.Ticker.paused = true;
       gameOver();

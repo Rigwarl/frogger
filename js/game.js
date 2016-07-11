@@ -70,6 +70,7 @@ function start() {
   createHero();
   setLevel(1);
   bindKeys();
+  bindTouch();
 }
 
 function createLevel() {
@@ -185,13 +186,59 @@ function setLevel(lvl) {
 function bindKeys() {
   var actions = {
     37: 'left',
-    38: 'top',
+    38: 'up',
     39: 'right',
-    40: 'bottom',
+    40: 'down',
   };
 
   window.addEventListener('keydown', function(e) {
     moveHero(actions[e.keyCode]);
+  });
+}
+
+function bindTouch() {
+  var touch;
+  var x;
+  var y;
+
+  stage.canvas.addEventListener('touchstart', function(e) {
+    if (e.touches.length !== 1) {
+      return;
+    }
+
+    touch = e.changedTouches[0];
+    x = touch.pageX;
+    y = touch.pageY;
+  });
+
+  stage.canvas.addEventListener('touchend', function(e) {
+    if (e.changedTouches[0] !== touch) {
+      return;
+    }
+
+    var dX = touch.pageX - x;
+    var dY = touch.pageY - y;
+    var action;
+
+    if (Math.abs(dX) > Math.abs(dY)) {
+      if (dX > 0) {
+        action = 'right';
+      } else {
+        action = 'left';
+      }
+    } else {
+      if (dY > 0) {
+        action = 'down';
+      } else {
+        action = 'up';
+      }
+    }
+
+    moveHero(action);
+  });
+
+  stage.canvas.addEventListener('touchmove', function(e) {
+    e.preventDefault();
   });
 }
 
@@ -206,10 +253,10 @@ function moveHero(action) {
     case 'right':
       newX += TILE_WIDTH;
       break;
-    case 'top':
+    case 'up':
       newY -= TILE_HEIGHT;
       break;
-    case 'bottom':
+    case 'down':
       newY += TILE_HEIGHT;
       break;
   }

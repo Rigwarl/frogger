@@ -1,13 +1,13 @@
 'use strict';
 
-var stage = new createjs.Stage('game-canvas');
-var queue = new createjs.LoadQueue();
+var TILE_WIDTH = 100;
+var TILE_HEIGHT = 83;
 
-var tileWidth = 100;
-var tileHeight = 83;
+var hudLevel;
+var hudKey;
 
-var hudLevel = document.querySelector('#level');
-var hudKey = document.querySelector('#key');
+var stage;
+var queue;
 
 var bugs = [];
 var hero;
@@ -17,23 +17,36 @@ var door;
 var level = 1;
 var keyCollected = false;
 
-queue.addEventListener('complete', init);
-queue.installPlugin(createjs.Sound);
-queue.loadManifest([
-  { id: 'hero', src: 'img/char-boy.png' },
-  { id: 'grass', src: 'img/grass-block.png' },
-  { id: 'water', src: 'img/water-block.png' },
-  { id: 'stone', src: 'img/stone-block.png' },
-  { id: 'bug', src: 'img/enemy-bug.png' },
-  { id: 'key', src: 'img/key.png' },
-  { id: 'door', src: 'img/door.png' },
-  { id: 'screamSound', src: 'audio/man-scream.mp3' },
-  { id: 'keySound', src: 'audio/key-pickup.mp3' },
-  { id: 'splashSound', src: 'audio/water-splash.mp3' },
-  { id: 'doorSound', src: 'audio/door-open.mp3' },
-]);
+init();
 
 function init() {
+  preload();
+
+  stage = new createjs.Stage('game-canvas');
+  hudLevel = document.querySelector('#level');
+  hudKey = document.querySelector('#key');
+}
+
+function preload() {
+  queue = new createjs.LoadQueue();
+  queue.addEventListener('complete', start);
+  queue.installPlugin(createjs.Sound);
+  queue.loadManifest([
+    { id: 'hero', src: 'img/char-boy.png' },
+    { id: 'grass', src: 'img/grass-block.png' },
+    { id: 'water', src: 'img/water-block.png' },
+    { id: 'stone', src: 'img/stone-block.png' },
+    { id: 'bug', src: 'img/enemy-bug.png' },
+    { id: 'key', src: 'img/key.png' },
+    { id: 'door', src: 'img/door.png' },
+    { id: 'screamSound', src: 'audio/man-scream.mp3' },
+    { id: 'keySound', src: 'audio/key-pickup.mp3' },
+    { id: 'splashSound', src: 'audio/water-splash.mp3' },
+    { id: 'doorSound', src: 'audio/door-open.mp3' },
+  ]);
+}
+
+function start() {
   createLevel();
   createBugs();
   createHero();
@@ -66,8 +79,8 @@ function createLevel() {
 
 function createTile(type, i, j) {
   var tile = new createjs.Bitmap(queue.getResult(type)).set({
-    x: j * tileWidth,
-    y: i * tileHeight - 50,
+    x: j * TILE_WIDTH,
+    y: i * TILE_HEIGHT - 50,
   });
   stage.addChild(tile);
 }
@@ -79,7 +92,7 @@ function createDoor() {
 }
 
 function resetDoor() {
-  door.x = Math.floor(Math.random() * 6 + 1) * tileWidth;
+  door.x = Math.floor(Math.random() * 6 + 1) * TILE_WIDTH;
 }
 
 function createKey() {
@@ -92,8 +105,8 @@ function resetKey() {
   keyCollected = false;
   key.visible = true;
   key.set({
-    x: Math.floor(Math.random() * 6 + 1) * tileWidth,
-    y: Math.floor(Math.random() * 4) * tileHeight,
+    x: Math.floor(Math.random() * 6 + 1) * TILE_WIDTH,
+    y: Math.floor(Math.random() * 4) * TILE_HEIGHT,
   });
 }
 
@@ -121,8 +134,8 @@ function createBug() {
 
 function setBug(bug) {
   bug.set({
-    x: - (Math.random() + 1) * tileWidth,
-    y: Math.floor(Math.random() * 4) * tileHeight,
+    x: - (Math.random() + 1) * TILE_WIDTH,
+    y: Math.floor(Math.random() * 4) * TILE_HEIGHT,
     speed: (Math.random() + 1) * (Math.random() + 1),
   });
 }
@@ -140,8 +153,8 @@ function createHero() {
 }
 
 function resetHero() {
-  hero.x = tileWidth * 3;
-  hero.y = tileHeight * 4;
+  hero.x = TILE_WIDTH * 3;
+  hero.y = TILE_HEIGHT * 4;
 }
 
 function resetLevel() {
@@ -169,16 +182,16 @@ function moveHero(action) {
 
   switch (action) {
     case 'left':
-      newX -= tileWidth;
+      newX -= TILE_WIDTH;
       break;
     case 'right':
-      newX += tileWidth;
+      newX += TILE_WIDTH;
       break;
     case 'top':
-      newY -= tileHeight;
+      newY -= TILE_HEIGHT;
       break;
     case 'bottom':
-      newY += tileHeight;
+      newY += TILE_HEIGHT;
       break;
   }
 
@@ -214,8 +227,8 @@ function checkCollision(obj1, obj2) {
   obj2 = obj2 || hero;
 
   return obj1.y === obj2.y && 
-         obj1.x + tileWidth * 0.75 > obj2.x && 
-         obj2.x + tileWidth * 0.75 > obj1.x;
+         obj1.x + TILE_WIDTH * 0.75 > obj2.x && 
+         obj2.x + TILE_WIDTH * 0.75 > obj1.x;
 }
 
 function dive() {

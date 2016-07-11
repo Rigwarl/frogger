@@ -3,16 +3,17 @@
 var TILE_WIDTH = 100;
 var TILE_HEIGHT = 83;
 
-var hudLevel;
-var hudKey;
+var hudLevel = document.querySelector('#level');
+var hudKey = document.querySelector('#key');
 
-var stage;
-var queue;
+var stage = new createjs.Stage('game-canvas');
+var queue = new createjs.LoadQueue();
 
-var bugs = [];
+var preloader;
 var hero;
 var key;
 var door;
+var bugs = [];
 
 var level = 1;
 var keyCollected = false;
@@ -20,15 +21,6 @@ var keyCollected = false;
 init();
 
 function init() {
-  preload();
-
-  stage = new createjs.Stage('game-canvas');
-  hudLevel = document.querySelector('#level');
-  hudKey = document.querySelector('#key');
-}
-
-function preload() {
-  queue = new createjs.LoadQueue();
   queue.addEventListener('complete', start);
   queue.installPlugin(createjs.Sound);
   queue.loadManifest([
@@ -44,16 +36,40 @@ function preload() {
     { id: 'splashSound', src: 'audio/water-splash.mp3' },
     { id: 'doorSound', src: 'audio/door-open.mp3' },
   ]);
+
+  createPreloader();
+  createTicker();
+}
+
+function createPreloader() {
+  preloader = new createjs.Text('Loading... 0%', '35px Arial', '#000').set({
+    x: stage.canvas.width / 2,
+    y: stage.canvas.height / 2,
+    textAlign: 'center',
+    textBaseline: 'middle',
+  });
+  queue.addEventListener('progress', movePreloader);
+
+  stage.addChild(preloader);
+}
+
+function movePreloader(e) {
+  preloader.text = 'Loading... ' + Math.floor(e.progress * 100) + '%';
+}
+
+function removePreloader() {
+  queue.removeEventListener('progress', movePreloader);
+  stage.removeChild(preloader);
+  preloader = null;
 }
 
 function start() {
+  removePreloader();
   createLevel();
   createBugs();
   createHero();
   setLevel(1);
-
   bindKeys();
-  createTicker();
 }
 
 function createLevel() {
@@ -157,7 +173,10 @@ function resetHero() {
   hero.y = TILE_HEIGHT * 4;
 }
 
-function resetLevel() {
+function setLevel(lvl) {
+  level = lvl;
+  hudLevel.innerText = 'Level: ' + lvl;
+
   resetHero();
   resetKey();
   resetDoor();
@@ -195,13 +214,13 @@ function moveHero(action) {
       break;
   }
 
-  if (checkMove(newX, newY)) {
+  if (tryMove(newX, newY)) {
     hero.x = newX;
     hero.y = newY;
   }
 }
 
-function checkMove(newX, newY) {
+function tryMove(newX, newY) {
   if (key.visible && checkCollision(key, { x: newX, y: newY })) {
     collectKey();
   }
@@ -251,12 +270,6 @@ function gameOver() {
   createjs.Sound.play('screamSound');
   setLevel(1);
   resetBugs();
-}
-
-function setLevel(lvl) {
-  level = lvl;
-  hudLevel.innerText = 'Level: ' + lvl;
-  resetLevel();
 }
 
 function createTicker() {

@@ -6,7 +6,7 @@ var queue = new createjs.LoadQueue();
 var tileWidth = 100;
 var tileHeight = 83;
 
-var hudText = document.querySelector('#level');
+var hudLevel = document.querySelector('#level');
 var hudKey = document.querySelector('#key');
 
 var bugs = [];
@@ -37,7 +37,7 @@ function init() {
   createLevel();
   createBugs();
   createHero();
-  resetLevel();
+  setLevel(1);
 
   bindKeys();
   createTicker();
@@ -225,8 +225,7 @@ function dive() {
 
 function nextLevel() {
   createjs.Sound.play('doorSound');
-  hudText.innerText = ++level;
-  resetLevel();
+  setLevel(++level);
   console.log('level ' + level);
 
   if (level % 3 === 0) {
@@ -237,9 +236,14 @@ function nextLevel() {
 function gameOver() {
   console.log('lost on lvl ' + level);
   createjs.Sound.play('screamSound');
-  hudText.innerText = level = 1;
-  resetLevel();
+  setLevel(1);
   resetBugs();
+}
+
+function setLevel(lvl) {
+  level = lvl;
+  hudLevel.innerText = 'Level: ' + lvl;
+  resetLevel();
 }
 
 function createTicker() {
@@ -267,7 +271,6 @@ function moveBugs(delta) {
 function checkHit() {
   for (var bug of bugs) {
     if (checkCollision(bug)) {
-      createjs.Ticker.paused = true;
       gameOver();
     }
   }

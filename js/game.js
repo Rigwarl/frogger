@@ -286,7 +286,8 @@ function createTicker() {
 }
 
 function moveBugs(delta) {
-  for (var bug of bugs) {
+  for (var i = 0; i < bugs.length; i++) {
+    var bug = bugs[i];
     bug.x += bug.speed * delta / 10;
     if (bug.x > stage.canvas.width) {
       setBug(bug);
@@ -295,8 +296,8 @@ function moveBugs(delta) {
 }
 
 function checkHit() {
-  for (var bug of bugs) {
-    if (checkCollision(bug)) {
+  for (var i = 0; i < bugs.length; i++) {
+    if (checkCollision(bugs[i])) {
       gameOver();
     }
   }

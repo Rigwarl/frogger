@@ -212,9 +212,7 @@ function bindTouch() {
   });
 
   stage.canvas.addEventListener('touchend', function(e) {
-    if (e.changedTouches[0] !== touch) {
-      return;
-    }
+    touch = e.changedTouches[0];
 
     var dX = touch.pageX - x;
     var dY = touch.pageY - y;

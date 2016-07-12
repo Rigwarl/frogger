@@ -4,9 +4,6 @@
   var TILE_WIDTH = 100;
   var TILE_HEIGHT = 83;
 
-  var hudLevel = document.querySelector('#level');
-  var hudKey = document.querySelector('#key');
-
   var stage = new createjs.Stage('game-canvas');
   var queue = new createjs.LoadQueue();
 
@@ -15,6 +12,9 @@
   var key;
   var door;
   var bugs = [];
+
+  var hudLevel;
+  var hudKey;
 
   var level = 1;
   var keyCollected = false;
@@ -70,6 +70,7 @@
     createLevel();
     createBugs();
     createHero();
+    createHud();
     setLevel(1);
 
     bindKeys();
@@ -123,12 +124,13 @@
   }
 
   function resetKey() {
-    hudKey.innerHTML = '';
+    hudKey.alpha = 0.5;
     keyCollected = false;
-    key.visible = true;
+
     key.set({
       x: Math.floor(Math.random() * 6 + 1) * TILE_WIDTH,
       y: Math.floor(Math.random() * 4) * TILE_HEIGHT,
+      visible: true,
     });
   }
 
@@ -136,8 +138,7 @@
     createjs.Sound.play('keySound');
     key.visible = false;
     keyCollected = true;
-
-    hudKey.appendChild(queue.getResult('key'));
+    hudKey.alpha = 1;
   }
 
   function createBugs() {
@@ -179,9 +180,25 @@
     hero.y = TILE_HEIGHT * 4;
   }
 
+  function createHud() {
+    hudLevel = new createjs.Text('', '22px Arial', '#fff').set({
+      x: 36,
+      y: 40,
+      textAlign: 'center',
+      textBaseline: 'middle',
+    });
+    hudKey = new createjs.Bitmap(queue.getResult('key')).set({
+      scaleX: 0.4,
+      scaleY: 0.4,
+      x: 63,
+    });
+
+    stage.addChild(hudLevel, hudKey);
+  }
+
   function setLevel(lvl) {
     level = lvl;
-    hudLevel.innerText = 'Level: ' + lvl;
+    hudLevel.text = 'Lvl: ' + lvl;
 
     resetHero();
     resetKey();

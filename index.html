@@ -5,15 +5,25 @@
   <title>Frogger game</title>
   
   <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+
+    #game-canvas{
+      display: block;
+      margin: 0 auto;
+      max-width: 100%;
+      max-height: 100%;
+    }
+  </style>
 </head>
 <body>
-  <div class="game">
-    <div class="game-hud">
-      <span class="game-level" id="level"></span>
-      <span class="game-key" id="key"></span>
-    </div>
-    <canvas id="game-canvas" width="700" height="500"></canvas>
-  </div>
+  <canvas id="game-canvas" width="700" height="500">
+    Your Browser too bad for this game...
+  </canvas>
 
   <script src="https://code.createjs.com/createjs-2015.11.26.min.js"></script>
   <script src="js/game.js"></script>

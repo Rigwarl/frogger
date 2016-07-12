@@ -36,6 +36,7 @@
       { id: 'keySound', src: 'audio/key-pickup.mp3' },
       { id: 'splashSound', src: 'audio/water-splash.mp3' },
       { id: 'doorSound', src: 'audio/door-open.mp3' },
+      { id: 'backSound', src: 'audio/background.mp3' },
     ]);
 
     createPreloader();
@@ -70,8 +71,11 @@
     createBugs();
     createHero();
     setLevel(1);
+
     bindKeys();
     bindTouch();
+
+    createjs.Sound.play('backSound', { loop: -1 });
   }
 
   function createLevel() {

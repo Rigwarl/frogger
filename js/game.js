@@ -41,6 +41,9 @@
 
     createPreloader();
     createTicker();
+
+    bindResize();
+    resize();
   }
 
   function createPreloader() {
@@ -223,7 +226,7 @@
     var x;
     var y;
 
-    stage.canvas.addEventListener('touchstart', function(e) {
+    window.addEventListener('touchstart', function(e) {
       if (e.touches.length !== 1) {
         return;
       }
@@ -233,7 +236,7 @@
       y = touch.pageY;
     });
 
-    stage.canvas.addEventListener('touchend', function(e) {
+    window.addEventListener('touchend', function(e) {
       touch = e.changedTouches[0];
 
       var dX = touch.pageX - x;
@@ -257,9 +260,41 @@
       moveHero(action);
     });
 
-    stage.canvas.addEventListener('touchmove', function(e) {
-      e.preventDefault();
+    window.addEventListener('touchmove', function(e) {
+      if (window.innerHeight >= 320) {
+        e.preventDefault();
+      }
     });
+
+    stage.canvas.addEventListener('touchmove', preventDefault);
+    stage.canvas.addEventListener('touchstart', preventDefault);
+    stage.canvas.addEventListener('touchend', preventDefault);
+  }
+
+  function preventDefault(e) {
+    e.preventDefault();
+  }
+
+  function bindResize() {
+    window.addEventListener('resize', resize);
+  }
+
+  function resize() {
+    var scaleX = window.innerWidth / stage.canvas.width;
+    var scaleY = window.innerHeight / stage.canvas.height;
+
+    if (scaleX > scaleY) {
+      stage.canvas.classList.remove('game-vertical');
+    } else {
+      stage.canvas.classList.add('game-vertical');
+    }
+
+    if (window.innerHeight < 320) {
+      document.body.style.paddingBottom = '25px';
+    }
+
+    window.scrollTo(0, 0);
+    //console.log(scale);
   }
 
   function moveHero(action) {

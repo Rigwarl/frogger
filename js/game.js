@@ -291,6 +291,8 @@
 
     if (window.innerHeight < 320) {
       document.body.style.paddingBottom = '25px';
+    } else {
+      document.body.style.paddingBottom = 0;
     }
 
     window.scrollTo(0, 0);
